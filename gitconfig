@@ -1,0 +1,20 @@
+[user]
+        name = jesse
+        email = jessedp@gmail.com
+        signingkey = EC42B1D66774E3CFA5068D42C2BF1C672D88D206 
+[merge]
+	tool = meld
+        ff = false
+[branch]
+        autosetuprebase = always
+[commit]
+        gpgsign = true
+
+[push]
+	followTags = true
+[alias]
+	co = checkout
+	cob = checkout -b
+	up = pull --rebase
+	bclean = "!f() { git branch --merged ${1-master} | grep -v " ${1-master}$" | xargs git branch -d; }; f"
+	bdone = "!f() { git checkout ${1-master} && git up && git bclean ${1-master}; }; f"
