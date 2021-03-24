@@ -2,9 +2,14 @@
         name = jesse
         email = jessedp@gmail.com
         signingkey = EC42B1D66774E3CFA5068D42C2BF1C672D88D206 
+
 [merge]
 	tool = meld
         ff = false
+
+[init]
+	defaultBranch = main
+
 [branch]
         autosetuprebase = always
 [commit]
