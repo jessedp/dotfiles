@@ -4,8 +4,14 @@
     ~/.profile: profile
     ~/.bashrc: bashrc
     ~/.bash_logout: bash_logout
+    ~/.bash_functions: bash_functions
     ~/.bash_aliases: bash_aliases
     ~/.gitconfig: gitconfig
     ~/.vimrc: vimrc
     ~/.vim: vim/
 
+- shell:
+  -
+    command: chmod +x ~/.dotfiles/bashrc.d/*.sh
+    description: ensuring bashrc.d is executable
+    quiet: tru
