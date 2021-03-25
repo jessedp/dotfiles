@@ -3,6 +3,7 @@
 - link:
     ~/.profile: profile
     ~/.bashrc: bashrc
+    ~/.bashrc.d: bashrc.d
     ~/.bash_logout: bash_logout
     ~/.bash_functions: bash_functions
     ~/.bash_aliases: bash_aliases
@@ -11,6 +12,7 @@
     ~/.vim: vim/
 
 - shell:
+  - [git submodule update --init --recursive, Installing submodules]
   -
     command: chmod +x ~/.dotfiles/bashrc.d/*.sh
     description: ensuring bashrc.d is executable
