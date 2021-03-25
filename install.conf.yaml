@@ -14,6 +14,6 @@
 - shell:
   - [git submodule update --init --recursive, Installing submodules]
   -
-    command: chmod +x ~/.dotfiles/bashrc.d/*.sh
+    command: chmod +x ~/.bashrc.d/*.sh
     description: ensuring bashrc.d is executable
-    quiet: tru
+    quiet: true
