@@ -21,13 +21,13 @@ _load_bashrc_d
 # make sure...
 export PATH
 
-# Powerline
-PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD}\007"'
+# # Powerline
+# PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD}\007"'
 
-powerline-daemon -q
-POWERLINE_BASH_CONTINUATION=1
-POWERLINE_BASH_SELECT=1
-source /home/jesse/.local/lib/python3.8/site-packages/powerline/bindings/bash/powerline.sh
+# powerline-daemon -q
+# POWERLINE_BASH_CONTINUATION=1
+# POWERLINE_BASH_SELECT=1
+# source /home/jesse/.local/lib/python3.8/site-packages/powerline/bindings/bash/powerline.sh
 
 
-source /home/jesse/.config/broot/launcher/bash/br
+# source /home/jesse/.config/broot/launcher/bash/br

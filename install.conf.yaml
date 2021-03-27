@@ -7,6 +7,7 @@
     ~/.bash_logout: bash_logout
     ~/.bash_functions: bash_functions
     ~/.bash_aliases: bash_aliases
+    ~/.git-prompt-colors.sh: git-prompt-colors
     ~/.gitconfig: gitconfig
     ~/.vimrc: vimrc
     ~/.vim: vim/
