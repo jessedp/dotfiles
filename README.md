@@ -8,4 +8,6 @@ git clone https://github.com/jessedp/dotfiles ~/.dotfiles && cd ~/.dotfiles && .
 
 
 ### update
+```bash
  ~/.dotfiles && git pull --ff-only &&  ./install && source ~/.bashrc && git_prompt_reset 
+```
