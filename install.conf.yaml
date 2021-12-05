@@ -12,6 +12,7 @@
     ~/.xinitrc: xinitrc
     ~/.vimrc: vimrc
     ~/.vim: vim/
+    ~/.digrc: digrc
 
 - shell:
   - [git submodule update --init --recursive, Installing submodules]
