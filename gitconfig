@@ -21,8 +21,10 @@
 	co = checkout
 	cob = checkout -b
 	up = pull --rebase
-	bclean = "!f() { git branch --merged ${1-master} | grep -v " ${1-master}$" | xargs git branch -d; }; f"
-	bdone = "!f() { git checkout ${1-master} && git up && git bclean ${1-master}; }; f"
+        ttt = "!f() { echo $(git remote show origin | grep HEAD | cut -c 16-); }; f"
+	bold = "!f() { git branch --merged $(git remote show origin | grep HEAD | cut -c 16-) | grep -v " $(git remote show origin | grep HEAD | cut -c 16-)$" ; }; f"
+        bclean = "!f() { git branch --merged $(git remote show origin | grep HEAD | cut -c 16-) | grep -v " $(git remote show origin | grep HEAD | cut -c 16-)$" | xargs git branch -d; }; f"
+	bdone = "!f() { git checkout $(git remote show origin | grep HEAD | cut -c 16-) && git up && git bclean $(git remote show origin | grep HEAD | cut -c 16-); }; f"
         st = status
         unstage = reset --soft HEAD^
         ls = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate
