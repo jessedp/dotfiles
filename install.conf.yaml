@@ -1,13 +1,13 @@
-- clean: ['~']
+- clean: ["~"]
 
 - link:
+    ~/bin: bin/
     ~/.profile: profile
     ~/.bashrc: bashrc
     ~/.bashrc.d: bashrc.d
     ~/.bash_logout: bash_logout
     ~/.bash_functions: bash_functions
     ~/.bash_aliases: bash_aliases
-    ~/.git-prompt-colors.sh: git-prompt-colors
     ~/.gitconfig: gitconfig
     ~/.xinitrc: xinitrc
     ~/.vimrc: vimrc
@@ -15,8 +15,7 @@
     ~/.digrc: digrc
 
 - shell:
-  - [git submodule update --init --recursive, Installing submodules]
-  -
-    command: chmod +x ~/.bashrc.d/*.sh
-    description: ensuring bashrc.d is executable
-    quiet: true
+    - [git submodule update --init --recursive, Installing submodules]
+    - command: chmod +x ~/.bashrc.d/*.sh
+      description: ensuring bashrc.d is executable
+      quiet: true

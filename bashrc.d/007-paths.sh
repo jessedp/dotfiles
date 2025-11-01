@@ -10,3 +10,8 @@ append PATH $HOME/.local/bin
 if [ -d $HOME/.cargo/bin ]; then
     export PATH=$PATH:$HOME/.cargo/bin
 fi
+
+export FLYCTL_INSTALL="/home/jesse/.fly"
+append PATH "$PATH:$FLYCTL_INSTALL/bin"
+
+export DOCKER_BUILDKIT=1

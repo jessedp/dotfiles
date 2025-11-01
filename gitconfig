@@ -17,6 +17,7 @@
 
 [push]
 	followTags = true
+	autoSetupRemote  = true
 [alias]
 	co = checkout
 	cob = checkout -b
