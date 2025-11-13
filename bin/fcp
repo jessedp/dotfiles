@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# fcp - A wrapper around rsync for fast file transfers.
+#
+# This script uses rsync with optimized SSH options for speed.
+# It's intended as a faster replacement for scp.
+
+# --- Configuration ---
+
+# rsync options:
+# -a: archive mode (recursive, preserves permissions, etc.)
+# -v: verbose output
+# -P: combines --progress and --partial (shows progress and allows resuming)
+#
+# You can add -z for rsync's built-in compression. This is useful for
+# transferring uncompressed files, but can be slower for already-compressed
+# files (e.g., .zip, .gz, .jpg).
+# RSYNC_OPTS="-avP -z"
+RSYNC_OPTS="-avP"
+
+# SSH options for rsync's remote shell (-e):
+# -T: Disable pseudo-tty allocation.
+# -c aes128-gcm@openssh.com: Use a fast and secure cipher.
+#    Other fast ciphers: chacha20-poly1305@openssh.com
+# -o Compression=no: Disable SSH-level compression. rsync can handle
+#   compression more efficiently (with the -z flag).
+SSH_OPTS="-T -c aes128-gcm@openssh.com -o Compression=no"
+
+# --- Script Logic ---
+
+# Check if at least two arguments (source and destination) are provided.
+if [ "$#" -lt 2 ]; then
+  echo "Usage: $0 <source_file_or_dir(s)>... <[user@]host:destination_path>"
+  echo ""
+  echo "A wrapper around rsync for fast file transfers, similar to scp."
+  echo ""
+  echo "Examples:"
+  echo "  $0 my_file.zip user@server:/remote/path/"
+  echo "  $0 my_folder user@server:/remote/path/"
+  echo "  $0 file1 file2 user@server:/remote/path/"
+  echo "  $0 user@server:/remote/path/file .  # Download"
+  exit 1
+fi
+
+echo "🚀 Starting fast transfer..."
+
+# Use exec to replace the script process with the rsync process.
+exec rsync "$RSYNC_OPTS" -e "ssh $SSH_OPTS" "$@"
