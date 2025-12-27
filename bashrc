@@ -24,7 +24,10 @@ export PATH
 # Install Ruby Gems to ~/gems
 export GEM_HOME="$HOME/gems"
 export PATH="$HOME/gems/bin:$PATH"
-
+export PATH="/home/jesse/projects/flutter/bin:$PATH"
+export ANDROID_HOME="/home/jesse/Android/Sdk"
+export PATH="$ANDROID_HOME/cmdline-tools/bin/:$PATH"
+append PATH "$ANDROID_HOME/platform-tools"
 
 # Setup NVM stuff
 export NVM_DIR="$HOME/.nvm"
