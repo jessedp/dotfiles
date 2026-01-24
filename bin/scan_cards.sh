@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 # Set the base path
 BASEPATH="$HOME/Documents/cards/scans"
 
@@ -47,6 +48,11 @@ notify_completion() {
     fi
 }
 
+split_image() {
+    cd ~/projects/python/card-tools/
+    uv run process_cards.py $1 $2
+}
+
 # Trap Ctrl+C and other interrupts
 trap cleanup INT TERM
 
@@ -55,9 +61,10 @@ echo "$next_run" > "$RUNS_FILE"
 
 # Execute the scan command
 if scanimage --progress --format=jpeg --mode Color --resolution 300 --output-file="$output_file"; then
-    echo "Scan successfully saved as $BASEPATH/$filename"
-    xdg-open "$BASEPATH/$filename"
+    echo "$BASEPATH/$filename"
+    # xdg-open "$BASEPATH/$filename"
     notify_completion
+    split_image $1 "$BASEPATH/$filename"
 else
     # If scan failed, clean up and restore previous run number
     cleanup
