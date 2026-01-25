@@ -25,6 +25,10 @@ fi
 if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
-. "$HOME/.cargo/env"
+if [ -s "$HOME/.cargo/env" ]; then
+    . "$HOME/.cargo/env"
+fi
 
-. "$HOME/.atuin/bin/env"
+if [ -s "$HOME/.atuin/bin/env" ]; then
+    . "$HOME/.atuin/bin/env"
+fi
