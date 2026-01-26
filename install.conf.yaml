@@ -13,6 +13,7 @@
     ~/.vimrc: vimrc
     ~/.vim: vim/
     ~/.digrc: digrc
+    ~/.bash-preexec.sh: bash-preexec.sh
 
 - shell:
     - [git submodule update --init --recursive, Installing submodules]
