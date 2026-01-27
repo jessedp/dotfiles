@@ -14,9 +14,12 @@
     ~/.vim: vim/
     ~/.digrc: digrc
     ~/.bash-preexec.sh: bash-preexec.sh
+    ~/backup:
+      path: rclone-wrapper/
+      create: true
 
 - shell:
     - [git submodule update --init --recursive, Installing submodules]
-    - command: chmod +x ~/.bashrc.d/*.sh
-      description: ensuring bashrc.d is executable
+    - command: chmod +x ~/.bashrc.d/*.sh rclone-wrapper/*.sh
+      description: ensuring scripts are executable
       quiet: true
