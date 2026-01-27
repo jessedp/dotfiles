@@ -2,3 +2,6 @@
 	path = dotbot
 	url = https://github.com/anishathalye/dotbot
 	ignore = dirty
+[submodule "rclone-wrapper"]
+	path = rclone-wrapper
+	url = https://github.com/jessedp/rclone-wrapper
