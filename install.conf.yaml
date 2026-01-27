@@ -24,9 +24,9 @@
 
 - shell:
     - [git submodule update --init --recursive, Installing submodules]
-    - command: chmod +x ~/.bashrc.d/*.sh rclone-wrapper/*.sh install-scripts/*.sh
-      description: ensuring scripts are executable
-      quiet: true
+    - command: ./install-scripts/check_permissions.sh
+      description: Verifying script permissions
+      quiet: false
     - command: "[ -f ~/.gitconfig.local ] || echo -e '[user]\n  signingkey =' > ~/.gitconfig.local"
       description: Creating ~/.gitconfig.local if it does not exist
       quiet: true

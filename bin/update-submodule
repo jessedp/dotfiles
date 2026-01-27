@@ -1,0 +1,49 @@
+#!/bin/bash
+set -euo pipefail
+
+# Help / Usage
+if [[ "${1:-}" == "-h" ]] || [[ "${1:-}" == "--help" ]]; then
+    echo "Usage: $(basename "$0") <submodule_path>"
+    echo "Updates the specified submodule to the latest remote commit, commits the change, and pushes."
+    exit 0
+fi
+
+if [ -z "${1:-}" ]; then
+    echo "Error: Please provide a submodule name/path."
+    echo "Usage: $(basename "$0") <submodule_path>"
+    exit 1
+fi
+
+SUBMODULE="${1%/}" # Remove trailing slash if present
+
+# Ensure we are in a git repo
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    echo "Error: current directory is not a git repository."
+    exit 1
+fi
+
+# Ensure the submodule exists
+if ! git submodule status "$SUBMODULE" >/dev/null 2>&1; then
+    echo "Error: '$SUBMODULE' does not appear to be a valid submodule."
+    exit 1
+fi
+
+echo "🔄 Fetching latest changes for '$SUBMODULE'..."
+git submodule update --remote "$SUBMODULE"
+
+# Check if anything actually changed
+if git diff --quiet "$SUBMODULE"; then
+    echo "✅ Submodule '$SUBMODULE' is already up to date."
+    exit 0
+fi
+
+echo "📝 Staging changes..."
+git add "$SUBMODULE"
+
+echo "💾 Committing..."
+git commit -m "chore: Update $SUBMODULE submodule to latest"
+
+echo "🚀 Pushing..."
+git push
+
+echo "🎉 Successfully updated '$SUBMODULE'."
