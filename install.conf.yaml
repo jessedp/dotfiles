@@ -1,7 +1,9 @@
 - clean: ["~"]
 
 - link:
-    ~/bin: bin/
+    ~/bin:
+        path: bin/
+        relink: true
     ~/.profile: profile
     ~/.bashrc: bashrc
     ~/.bashrc.d: bashrc.d
@@ -11,7 +13,9 @@
     ~/.gitconfig: gitconfig
     ~/.xinitrc: xinitrc
     ~/.vimrc: vimrc
-    ~/.vim: vim/
+    ~/.vim:
+        path: vim/
+        relink: true
     ~/.digrc: digrc
     ~/.bash-preexec.sh: bash-preexec.sh
     ~/backup:
@@ -20,6 +24,51 @@
 
 - shell:
     - [git submodule update --init --recursive, Installing submodules]
-    - command: chmod +x ~/.bashrc.d/*.sh rclone-wrapper/*.sh
+    - command: chmod +x ~/.bashrc.d/*.sh rclone-wrapper/*.sh install-scripts/*.sh
       description: ensuring scripts are executable
       quiet: true
+    - command: "[ -f ~/.gitconfig.local ] || echo -e '[user]\n  signingkey =' > ~/.gitconfig.local"
+      description: Creating ~/.gitconfig.local if it does not exist
+      quiet: true
+    - command: "./install-scripts/check_sudoers.sh"
+      description: Checking sudoers setup
+      quiet: false
+    - command: "./install-scripts/check_ssh.sh"
+      description: Checking SSH key setup
+      quiet: false
+    - command: "./install-scripts/check_gpg.sh"
+      description: Checking GPG configuration for Git signing
+      quiet: false
+    - command: "./install-scripts/install_apt_packages.sh"
+      description: Installing APT packages
+      quiet: false
+    - command: "./install-scripts/install_nerdfonts.sh"
+      description: Installing Nerd Fonts
+      quiet: false
+    - command: "./install-scripts/install_starship.sh"
+      description: Installing Starship prompt
+      quiet: false
+    - command: "./install-scripts/install_tailscale.sh"
+      description: Installing Tailscale
+      quiet: false
+    - command: "./install-scripts/install_atuin.sh"
+      description: Installing Atuin
+      quiet: false
+    - command: "./install-scripts/install_docker.sh"
+      description: Installing Docker
+      quiet: false
+    - command: "./install-scripts/install_nvm.sh"
+      description: Installing nvm (Node Version Manager)
+      quiet: false
+    - command: "./install-scripts/install_lazygit.sh"
+      description: Installing Lazygit
+      quiet: false
+    - command: "./install-scripts/install_sublime.sh"
+      description: Installing Sublime Text
+      quiet: false
+    - command: "./install-scripts/install_vscode.sh"
+      description: Installing VSCode
+      quiet: false
+    - command: "./install-scripts/install_dbeaver.sh"
+      description: Installing Dbeaver
+      quiet: false
