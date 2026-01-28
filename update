@@ -1,0 +1,13 @@
+#!/bin/bash
+set -euo pipefail
+
+# Ensure we are in the root of the dotfiles directory
+cd "$(dirname "$0")"
+
+echo "🔄 Pulling latest changes from .dotfiles..."
+git pull
+
+echo "📦 Synchronizing submodules..."
+git submodule update --init --recursive
+
+echo "✨ Update complete!"
