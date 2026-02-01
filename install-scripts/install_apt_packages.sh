@@ -18,14 +18,14 @@ sudo apt-get install -y build-essential git sqlite3 curl vim tmux zsh python3-pi
 echo "INFO: Installing my CLI packages..."
 sudo apt-get install -y jq rclone mc qrencode shellcheck traceroute mtr iftop syncthing
 
-# Check for display server before installing GUI packages
-if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; then
-    echo "INFO: Display server detected. Installing common GUI packages..."
+# Check for "desktop" profile before installing GUI packages
+if [ "$DOTFILES_PROFILE" == "desktop" ]; then
+    echo "INFO: 'desktop' profile detected. Installing common GUI packages..."
     sudo apt-get install -y gparted
-    echo "INFO: Display server detected. Installing my GUI packages..."
+    echo "INFO: 'desktop' profile detected. Installing my GUI packages..."
     sudo apt-get install -y meld rpi-imager flameshot gnome-tweaks
 else
-    echo "INFO: No display server detected. Skipping GUI package installation."
+    echo "INFO: 'desktop' profile not detected. Skipping GUI package installation."
 fi
 
 echo "-------------------------------"

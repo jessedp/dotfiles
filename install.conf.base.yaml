@@ -1,3 +1,11 @@
+- defaults:
+    link:
+      relink: true # This is good to have with force or backup
+      backup: true # Or use force: true
+
+- clean: ["~"]
+
+
 - clean: ["~"]
 
 - link:
@@ -11,7 +19,6 @@
     ~/.bash_functions: bash_functions
     ~/.bash_aliases: bash_aliases
     ~/.gitconfig: gitconfig
-    ~/.xinitrc: xinitrc
     ~/.vimrc: vimrc
     ~/.vim:
         path: vim/
@@ -36,10 +43,7 @@
     - command: "./install-scripts/check_ssh.sh"
       description: Checking SSH key setup
       quiet: false
-    - command: "./install-scripts/check_gpg.sh"
-      description: Checking GPG configuration for Git signing
-      quiet: false
-    - command: "./install-scripts/install_apt_packages.sh"
+    - command: "./install-scripts/install_apt_packages.sh \"$DOTFILES_PROFILE\""
       description: Installing APT packages
       quiet: false
     - command: "./install-scripts/install_nerdfonts.sh"
@@ -62,13 +66,4 @@
       quiet: false
     - command: "./install-scripts/install_lazygit.sh"
       description: Installing Lazygit
-      quiet: false
-    - command: "./install-scripts/install_sublime.sh"
-      description: Installing Sublime Text
-      quiet: false
-    - command: "./install-scripts/install_vscode.sh"
-      description: Installing VSCode
-      quiet: false
-    - command: "./install-scripts/install_dbeaver.sh"
-      description: Installing Dbeaver
       quiet: false

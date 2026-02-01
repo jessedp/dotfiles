@@ -2,9 +2,12 @@
 
 set -e
 
-CONFIG="install.conf.yaml"
-DOTBOT_DIR="dotbot"
+export DOTFILES_PROFILE="${1:-server}"
+if [[ "$DOTFILES_PROFILE" == "server" ]] || [[ "$DOTFILES_PROFILE" == "desktop" ]]; then
+  shift # remove profile argument
+fi
 
+DOTBOT_DIR="dotbot"
 DOTBOT_BIN="bin/dotbot"
 BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -12,4 +15,10 @@ cd "${BASEDIR}"
 git -C "${DOTBOT_DIR}" submodule sync --quiet --recursive
 git submodule update --init --recursive "${DOTBOT_DIR}"
 
-"${BASEDIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -vv -d "${BASEDIR}" -c "${CONFIG}" "${@}"
+# Run base config first
+"${BASEDIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -vv -d "${BASEDIR}" -c "install.conf.base.yaml" "${@}"
+
+# Run desktop-specific config if not a server install
+if [ "$DOTFILES_PROFILE" == "desktop" ]; then
+    "${BASEDIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -vv -d "${BASEDIR}" -c "install.conf.desktop.yaml" "${@}"
+fi
