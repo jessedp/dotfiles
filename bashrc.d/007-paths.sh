@@ -4,7 +4,7 @@ append PATH $GOROOT/bin:$GOPATH/bin
 #append $GOROOT
 
 append PATH $HOME/.config/composer/vendor/bin
-append PATH $HOME/.local/bin
+prepend PATH $HOME/.local/bin
 
 # RUST bins
 if [ -d $HOME/.cargo/bin ]; then

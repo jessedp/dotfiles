@@ -29,7 +29,6 @@ export PATH="/home/jesse/projects/flutter/bin:$PATH"
 export ANDROID_HOME="/home/jesse/Android/Sdk"
 export PATH="$ANDROID_HOME/cmdline-tools/bin/:$PATH"
 append PATH "$ANDROID_HOME/platform-tools"
-export PATH="/home/jesse/.local/bin:$PATH"
 
 # Setup NVM stuff
 export NVM_DIR="$HOME/.nvm"
