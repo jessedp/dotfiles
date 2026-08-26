@@ -1,0 +1,73 @@
+{
+  "model": "claude-fable-5[1m]",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/resolve-screenshot.py 2>/dev/null || true",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/session-start.sh 2>/dev/null || true",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh",
+    "refreshInterval": 30
+  },
+  "enabledPlugins": {
+    "playwright@claude-plugins-official": true,
+    "brw@shrivu-plugins": true
+  },
+  "extraKnownMarketplaces": {
+    "claude-code-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-code"
+      }
+    },
+    "shrivu-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "sshh12/claude-plugins"
+      }
+    }
+  },
+  "effortLevel": "xhigh",
+  "modelSettings": {
+    "claude-fable-5": {
+      "effortLevel": "high"
+    }
+  },
+  "tui": "fullscreen",
+  "skipDangerousModePermissionPrompt": true,
+  "showMessageTimestamps": true,
+  "autoMode": {
+    "environment": [
+      "### Org-wide",
+      "**Organization**: None \u2014 personal projects + home lab, no business/legal entity",
+      "**Source control**: GitHub user jessedp/ (private repos unless noted); private repo visibility alone does not clear secrets for commit",
+      "**Secrets management**: per-project gitignored `.env` files only; never commit them, never paste into public services",
+      "**Sensitive remote targets**: woa-1 and ls2/lastseen2 are internet-facing VPS running production sites \u2014 read-only unless explicitly told to deploy; anything named prod/production",
+      "**Internal hosts**: Tailscale network (lehrer, oscar, oddjob, zazu, aargh, jelly, pinky, lotsofthings\u2026); inventory at /opt/control-center/inventory.md on oddjob",
+      "### User-specific",
+      "**Primary use of Claude Code**: personal software development (Atlanta public-data projects), home-lab/network administration, and personal automation",
+      "**Org-specific CLIs**: `uv` for Python, `gh` for GitHub, `tailscale`, `docker compose`",
+      "$defaults"
+    ]
+  }
+}
