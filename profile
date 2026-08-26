@@ -33,3 +33,6 @@ if [ -s "$HOME/.atuin/bin/env" ]; then
     . "$HOME/.atuin/bin/env"
 fi
 
+
+# Added by Antigravity CLI installer
+export PATH="/home/jesse/.local/bin:$PATH"

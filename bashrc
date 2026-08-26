@@ -1,4 +1,5 @@
 # ~/.bashrc: executed by bash(1) for non-login shells.
+
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
@@ -28,6 +29,7 @@ export PATH="/home/jesse/projects/flutter/bin:$PATH"
 export ANDROID_HOME="/home/jesse/Android/Sdk"
 export PATH="$ANDROID_HOME/cmdline-tools/bin/:$PATH"
 append PATH "$ANDROID_HOME/platform-tools"
+export PATH="/home/jesse/.local/bin:$PATH"
 
 # Setup NVM stuff
 export NVM_DIR="$HOME/.nvm"
