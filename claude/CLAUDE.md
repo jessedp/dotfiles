@@ -9,7 +9,7 @@ This file is shared across machines via `~/.dotfiles/claude/` (dotbot-linked int
 - **oddjob** — LXC on the `zazu` Proxmox host; "network brain" (Docker: daily-digest, homepage, uptime-kuma, home-assistant…). Inventory at `/opt/control-center`.
 - **woa-1**, **ls2/lastseen2** — internet-facing VPS running production sites. Reach in read-only unless explicitly told to deploy. No GPU anywhere.
 
-All hosts are on Tailscale and resolve by name; `~/.ssh/config` has the aliases. The device/service inventory is `/opt/control-center/inventory.md` (+ `inventory/<host>.md`) on oddjob.
+All hosts are on Tailscale and resolve by name; `~/.ssh/config` has the aliases. The home-lab operations repo (`jessedp/home-control-center`) is cloned at `/opt/control-center` on lehrer, oscar and oddjob: inventory is `inventory.md` + `inventory/<host>.md` there. **Start system/infra/network sessions from `/opt/control-center`** so they share one memory scope; pull before acting, push after editing.
 
 ## Memory conventions
 
