@@ -11,6 +11,10 @@ This file is shared across machines via `~/.dotfiles/claude/` (dotbot-linked int
 
 All hosts are on Tailscale and resolve by name; `~/.ssh/config` has the aliases. The home-lab operations repo (`jessedp/home-control-center`) is cloned at `/opt/control-center` on lehrer, oscar and oddjob: inventory is `inventory.md` + `inventory/<host>.md` there. **Start system/infra/network sessions from `/opt/control-center`** so they share one memory scope; pull before acting, push after editing.
 
+## Atlanta public-data questions
+
+For "look at the data and answer…" sessions across nbh_accela / atl_council / who_owns_atl / atl_ledger, **start from `~/projects/python/atl-data`** (cloned on lehrer and oscar): its `AGENTS.md` has the authority table (which instance is the truth) and `bin/q` queries any instance read-only over Tailscale.
+
 ## Memory conventions
 
 - Auto-memory is synced between machines via `~/.claude-memory` (git). Any memory that is machine-specific must **name the host** ("lehrer=Xorg, oscar=Wayland"), never assume "this machine".
