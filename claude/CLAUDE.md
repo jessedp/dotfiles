@@ -20,6 +20,7 @@ For "look at the data and answer…" sessions across nbh_accela / atl_council / 
 - Auto-memory is synced between machines via `~/.claude-memory` (git). Any memory that is machine-specific must **name the host** ("lehrer=Xorg, oscar=Wayland"), never assume "this machine".
 - Durable project facts (schemas, data locations, gotchas) belong in the repo (`AGENTS.md` / `docs/`), not in memory. Memory holds feedback, preferences, and pointers.
 - `AGENTS.md` is the single instruction file per project; `CLAUDE.md`/`GEMINI.md` are symlinks to it. Never overwrite the symlinks.
+- How instruction files, `docs/`, `planning/` and memory are organized is defined once in `~/.dotfiles/agents/CONVENTIONS.md`. Read it when I **explicitly ask** you to create or restructure such a file. **Never** reorganize or trim an existing AGENTS.md/docs/memory file unasked, even if it doesn't match — existing files are the way they are on purpose (e.g. `atl_ledger/AGENTS.md`); edits follow the file's existing structure.
 
 ## Bare image filenames = screenshots to read
 
