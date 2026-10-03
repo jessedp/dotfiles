@@ -1,0 +1,193 @@
+#!/usr/bin/env python3
+"""
+cb_md2html: Convert Markdown (clipboard/stdin/file) into Rich HTML with Compact Thin Table Borders.
+Usage:
+  cb_md2html             # Reads Markdown from clipboard, converts to Rich HTML clipboard
+  cb_md2html file.md     # Reads file.md, converts to Rich HTML clipboard
+  cat file.md | cb_md2html # Reads stdin, converts to Rich HTML clipboard
+"""
+
+import sys
+import os
+import shutil
+import subprocess
+import re
+
+PANDOC_BIN = shutil.which("pandoc") or "/home/jesse/.local/bin/pandoc"
+
+def is_interactive():
+    # Only print status messages when executed interactively from a terminal TTY
+    return sys.stdout.isatty() and bool(os.environ.get("TERM"))
+
+def log_msg(msg):
+    if is_interactive():
+        print(msg)
+
+def get_markdown_input():
+    if len(sys.argv) > 1 and sys.argv[1] != "-":
+        if os.path.exists(sys.argv[1]):
+            with open(sys.argv[1], "r", encoding="utf-8") as f:
+                return f.read()
+    elif not sys.stdin.isatty():
+        return sys.stdin.read()
+    
+    if shutil.which("xclip"):
+        for target in ["UTF8_STRING", "text/plain", "STRING", "text/html"]:
+            p = subprocess.run(["xclip", "-selection", "clipboard", "-o", "-t", target], capture_output=True, text=True)
+            if p.returncode == 0 and p.stdout.strip():
+                return p.stdout
+        p = subprocess.run(["xclip", "-selection", "clipboard", "-o"], capture_output=True, text=True)
+        if p.returncode == 0 and p.stdout.strip():
+            return p.stdout
+
+    if shutil.which("wl-paste"):
+        p = subprocess.run(["wl-paste"], capture_output=True, text=True)
+        if p.returncode == 0 and p.stdout.strip():
+            return p.stdout
+            
+    return ""
+
+def convert_md_to_html(md_text):
+    p = subprocess.run([PANDOC_BIN, "-f", "markdown+hard_line_breaks", "-t", "html", "--wrap=none"], input=md_text, capture_output=True, text=True)
+    if p.returncode != 0:
+        if is_interactive():
+            sys.exit(f"Pandoc error: {p.stderr}")
+        else:
+            sys.exit(1)
+    return p.stdout
+
+def inject_compact_thin_border_styles(html):
+    # Gmail has no table tool, so keep tables as plain as body text: inherited
+    # font/size/weight, only a thin border in Gmail's quote-bar grey.
+    cell = "border:1px solid rgb(204,204,204);padding:2px 6px;text-align:left;font-weight:normal"
+    html = re.sub(r"<table\b[^>]*>", '<table style="border-collapse:collapse">', html)
+    html = re.sub(r"<th(\s[^>]*)?>", f'<th style="{cell}">', html)
+    html = re.sub(r"<td(\s[^>]*)?>", f'<td style="{cell}">', html)
+    return html
+
+TEXT_BLOCKS = ("p", "pre", "h1", "h2", "h3", "h4", "h5", "h6")
+GMAIL_QUOTE_STYLE = "margin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex"
+
+def gmailify(html):
+    # Rewrite pandoc HTML into the markup Gmail's compose box itself produces
+    # (see a "Show original" of a hand-typed message): one <div> per typed line,
+    # <div><br></div> for an empty line, lists wrapped in a bare <div>, quote text
+    # directly inside a gmail_quote blockquote, no whitespace between tags.
+    from bs4 import BeautifulSoup, NavigableString
+    soup = BeautifulSoup(html, "html.parser")
+
+    def blank():
+        d = soup.new_tag("div")
+        d.append(soup.new_tag("br"))
+        return d
+
+    for ws in soup.find_all(string=lambda t: not t.strip() and t.parent.name != "pre"):
+        ws.extract()
+
+    # A blank line in the Markdown between two plain-text blocks becomes an empty
+    # line in Gmail; lists, quotes and tables sit flush, as in the compose box.
+    prev = None
+    for c in list(soup.contents):
+        if prev is not None and prev.name in TEXT_BLOCKS and c.name in TEXT_BLOCKS:
+            c.insert_before(blank())
+        prev = c
+
+    for tag, gmail in (("strong", "b"), ("em", "i"), ("del", "strike")):
+        for el in soup.find_all(tag):
+            el.name = gmail
+    for span in soup.find_all("span", class_="underline"):
+        span.name = "u"
+        span.attrs = {}
+
+    # Gmail has no code formatting: inline code is plain text, a code block is
+    # one <div> per line with its indentation kept.
+    for code in soup.find_all("code"):
+        if code.parent and code.parent.name == "pre":
+            continue
+        code.unwrap()
+
+    for pre in soup.find_all("pre"):
+        divs = []
+        for line in pre.get_text().rstrip("\n").split("\n"):
+            d = soup.new_tag("div")
+            stripped = line.lstrip(" ")
+            if stripped:
+                d.append(NavigableString("\u00a0" * (len(line) - len(stripped)) + stripped))
+            else:
+                d.append(soup.new_tag("br"))
+            divs.append(d)
+        pre.replace_with(*divs)
+
+    for h in soup.find_all(["h1", "h2", "h3", "h4", "h5", "h6"]):
+        b = soup.new_tag("b")
+        for c in list(h.contents):
+            b.append(c.extract())
+        h.attrs = {}
+        if h.name in ("h1", "h2"):
+            font = soup.new_tag("font", size="4")
+            font.append(b)
+            h.append(font)
+        else:
+            h.append(b)
+        h.name = "div"
+
+    # Each source line of a paragraph (hard_line_breaks) becomes its own <div>.
+    for p in soup.find_all("p"):
+        lines, cur = [], []
+        for c in list(p.contents):
+            if c.name == "br":
+                lines.append(cur)
+                cur = []
+            else:
+                cur.append(c.extract())
+        lines.append(cur)
+        if p.parent.name in ("li", "blockquote") and len(lines) == 1:
+            p.replace_with(*lines[0])
+            continue
+        divs = []
+        for line in lines:
+            if line and isinstance(line[0], NavigableString):
+                line[0] = NavigableString(line[0].lstrip("\n"))
+            d = soup.new_tag("div")
+            for c in line:
+                d.append(c)
+            if not line:
+                d.append(soup.new_tag("br"))
+            divs.append(d)
+        p.replace_with(*divs)
+
+    for bq in soup.find_all("blockquote"):
+        bq.attrs = {"class": "gmail_quote", "style": GMAIL_QUOTE_STYLE}
+        if len(bq.contents) == 1 and bq.contents[0].name == "div":
+            bq.contents[0].unwrap()
+
+    for lst in soup.find_all(["ul", "ol"]):
+        lst.attrs = {}
+        if lst.parent.name != "li":
+            lst.wrap(soup.new_tag("div"))
+
+    wrapper = soup.new_tag("div", dir="ltr")
+    for c in list(soup.contents):
+        wrapper.append(c.extract())
+    return wrapper.decode(formatter="html5")
+
+def set_clipboard_html(html_str):
+    if shutil.which("xclip"):
+        p = subprocess.Popen(["xclip", "-selection", "clipboard", "-t", "text/html"], stdin=subprocess.PIPE)
+        p.communicate(input=html_str.encode("utf-8"))
+    elif shutil.which("wl-copy"):
+        subprocess.run(["wl-copy", "-t", "text/html"], input=html_str, text=True)
+
+def main():
+    md_text = get_markdown_input()
+    if not md_text or not md_text.strip():
+        log_msg("Notice: Clipboard or input was empty. Nothing converted.")
+        return
+        
+    raw_html = convert_md_to_html(md_text)
+    styled_html = gmailify(inject_compact_thin_border_styles(raw_html))
+    set_clipboard_html(styled_html)
+    log_msg("✓ Converted Markdown table to compact Rich HTML on clipboard!")
+
+if __name__ == "__main__":
+    main()
