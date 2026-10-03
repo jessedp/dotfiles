@@ -2,15 +2,21 @@
 set -e
 set -u
 
-if [ -z "$1" ]; then
-  echo "Usage: $0 <input.mp4>"
+if [ -z "${1:-}" ]; then
+  echo "Usage: $0 <input.mp4> [width=280] [fps=8] [colors=64]"
   exit 1
 fi
 
 input_file="$1"
+width="${2:-280}"
+fps="${3:-8}"
+colors="${4:-64}"
 filename_no_ext="${input_file%.*}"
 output_file="${filename_no_ext}.gif"
 
-echo "Converting $input_file to $output_file..."
-ffmpeg -i "$input_file" -vf "fps=10,scale=320:-1:flags=lanczos" -c:v gif "$output_file"
-echo "Conversion complete."
+echo "Converting $input_file to $output_file (${width}px, ${fps}fps, ${colors} colors)..."
+# per-video palette; no dither + rectangle diff keeps frames small
+ffmpeg -y -v error -i "$input_file" \
+  -vf "fps=${fps},scale=${width}:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=${colors}:stats_mode=diff[p];[b][p]paletteuse=dither=none:diff_mode=rectangle" \
+  -loop 0 "$output_file"
+echo "Conversion complete: $(du -h "$output_file" | cut -f1)"
