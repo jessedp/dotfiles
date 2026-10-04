@@ -22,6 +22,9 @@ def is_interactive():
 def log_msg(msg):
     if is_interactive():
         print(msg)
+    elif shutil.which("notify-send"):
+        # No terminal (e.g. a GNOME keyboard shortcut): say it on the desktop instead
+        subprocess.run(["notify-send", "-t", "2000", "cb_md2html", msg])
 
 def get_markdown_input():
     if len(sys.argv) > 1 and sys.argv[1] != "-":
@@ -29,8 +32,12 @@ def get_markdown_input():
             with open(sys.argv[1], "r", encoding="utf-8") as f:
                 return f.read()
     elif not sys.stdin.isatty():
-        return sys.stdin.read()
-    
+        # A keyboard shortcut runs us with stdin on /dev/null: empty stdin means
+        # "use the clipboard", not "convert nothing".
+        text = sys.stdin.read()
+        if text.strip():
+            return text
+
     if shutil.which("xclip"):
         for target in ["UTF8_STRING", "text/plain", "STRING", "text/html"]:
             p = subprocess.run(["xclip", "-selection", "clipboard", "-o", "-t", target], capture_output=True, text=True)
@@ -50,10 +57,8 @@ def get_markdown_input():
 def convert_md_to_html(md_text):
     p = subprocess.run([PANDOC_BIN, "-f", "markdown+hard_line_breaks", "-t", "html", "--wrap=none"], input=md_text, capture_output=True, text=True)
     if p.returncode != 0:
-        if is_interactive():
-            sys.exit(f"Pandoc error: {p.stderr}")
-        else:
-            sys.exit(1)
+        log_msg(f"Pandoc error: {p.stderr}")
+        sys.exit(1)
     return p.stdout
 
 def inject_compact_thin_border_styles(html):
