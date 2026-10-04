@@ -1,10 +1,19 @@
 #!/usr/bin/env python3
 """
-cb_md2html: Convert Markdown (clipboard/stdin/file) into Rich HTML with Compact Thin Table Borders.
+cb_md2html: Convert between Markdown and Gmail-style Rich HTML on the clipboard.
+
+The direction is guessed from the input:
+  - rich HTML on the clipboard (copied from Gmail / a browser), or HTML source
+    as text, is converted to Markdown and put on the clipboard as plain text;
+  - anything else (plain text, or an editor's syntax-highlighted copy) is
+    treated as Markdown and put on the clipboard as Rich HTML.
+So pressing the shortcut twice toggles back and forth.
+
 Usage:
-  cb_md2html             # Reads Markdown from clipboard, converts to Rich HTML clipboard
-  cb_md2html file.md     # Reads file.md, converts to Rich HTML clipboard
-  cat file.md | cb_md2html # Reads stdin, converts to Rich HTML clipboard
+  cb_md2html               # clipboard -> clipboard, direction guessed
+  cb_md2html file.md       # file (.md or .html) -> clipboard
+  cat file.md | cb_md2html # stdin -> clipboard
+  cb_md2html --to-md|--to-html [file|-]   # force the direction
 """
 
 import sys
@@ -26,33 +35,68 @@ def log_msg(msg):
         # No terminal (e.g. a GNOME keyboard shortcut): say it on the desktop instead
         subprocess.run(["notify-send", "-t", "2000", "cb_md2html", msg])
 
-def get_markdown_input():
-    if len(sys.argv) > 1 and sys.argv[1] != "-":
-        if os.path.exists(sys.argv[1]):
-            with open(sys.argv[1], "r", encoding="utf-8") as f:
-                return f.read()
-    elif not sys.stdin.isatty():
+def clipboard_types():
+    if shutil.which("xclip"):
+        p = subprocess.run(["xclip", "-selection", "clipboard", "-o", "-t", "TARGETS"], capture_output=True, text=True)
+        if p.returncode == 0:
+            return p.stdout.split()
+    if shutil.which("wl-paste"):
+        p = subprocess.run(["wl-paste", "--list-types"], capture_output=True, text=True)
+        if p.returncode == 0:
+            return p.stdout.split()
+    return []
+
+def clipboard_get(target=None):
+    if shutil.which("xclip"):
+        cmd = ["xclip", "-selection", "clipboard", "-o"] + (["-t", target] if target else [])
+    elif shutil.which("wl-paste"):
+        cmd = ["wl-paste"] + (["-t", target] if target else [])
+    else:
+        return ""
+    p = subprocess.run(cmd, capture_output=True, text=True)
+    return p.stdout if p.returncode == 0 else ""
+
+def looks_like_html(text):
+    return re.match(r"\s*<(!doctype|html|meta|div|p|span|table|ul|ol|b|h[1-6])\b", text, re.I) is not None
+
+def is_editor_copy(html):
+    # VS Code & co. put syntax-highlighted HTML on the clipboard alongside the
+    # plain text: a monospace/pre-formatted block with no document structure.
+    # That is Markdown source, not rich text.
+    head = html[:1000].lower()
+    if "white-space: pre" in head or "white-space:pre" in head or "monospace" in head:
+        return not re.search(r"<(b|strong|i|em|ul|ol|table|blockquote|a|h[1-6])\b", html, re.I)
+    return False
+
+def get_input(path=None):
+    """Return (text, kind) where kind is "md", "html" or None (unknown)."""
+    if path and path != "-":
+        with open(path, "r", encoding="utf-8") as f:
+            text = f.read()
+        if path.lower().endswith((".html", ".htm")):
+            return text, "html"
+        return text, None
+    if path == "-" or not sys.stdin.isatty():
         # A keyboard shortcut runs us with stdin on /dev/null: empty stdin means
         # "use the clipboard", not "convert nothing".
         text = sys.stdin.read()
         if text.strip():
-            return text
+            return text, None
 
-    if shutil.which("xclip"):
-        for target in ["UTF8_STRING", "text/plain", "STRING", "text/html"]:
-            p = subprocess.run(["xclip", "-selection", "clipboard", "-o", "-t", target], capture_output=True, text=True)
-            if p.returncode == 0 and p.stdout.strip():
-                return p.stdout
-        p = subprocess.run(["xclip", "-selection", "clipboard", "-o"], capture_output=True, text=True)
-        if p.returncode == 0 and p.stdout.strip():
-            return p.stdout
-
-    if shutil.which("wl-paste"):
-        p = subprocess.run(["wl-paste"], capture_output=True, text=True)
-        if p.returncode == 0 and p.stdout.strip():
-            return p.stdout
-            
-    return ""
+    types = clipboard_types()
+    plain = ""
+    for target in ["UTF8_STRING", "text/plain;charset=utf-8", "text/plain", "STRING"]:
+        if target in types:
+            plain = clipboard_get(target)
+            if plain.strip():
+                break
+    if "text/html" in types:
+        html = clipboard_get("text/html")
+        if html.strip() and not (plain.strip() and is_editor_copy(html)):
+            return html, "html"
+    if not plain.strip():
+        plain = clipboard_get()
+    return plain, None
 
 def convert_md_to_html(md_text):
     p = subprocess.run([PANDOC_BIN, "-f", "markdown+hard_line_breaks", "-t", "html", "--wrap=none"], input=md_text, capture_output=True, text=True)
@@ -176,6 +220,97 @@ def gmailify(html):
         wrapper.append(c.extract())
     return wrapper.decode(formatter="html5")
 
+BLOCK_TAGS = {"div", "p", "ul", "ol", "table", "blockquote", "pre", "hr",
+              "h1", "h2", "h3", "h4", "h5", "h6"}
+
+def degmailify(html):
+    # Undo Gmail's compose markup (see gmailify) so pandoc sees paragraphs: a run
+    # of one-line <div>s becomes one <p> joined by <br>, <div><br></div> ends it.
+    from bs4 import BeautifulSoup, NavigableString
+    soup = BeautifulSoup(html, "html.parser")
+    for el in soup.find_all(["meta", "style", "script", "title"]):
+        el.decompose()
+
+    def is_block(el):
+        return getattr(el, "name", None) in BLOCK_TAGS
+
+    def is_line_div(el):
+        return el.name == "div" and not any(is_block(d) for d in el.find_all(True))
+
+    def is_blank(el):
+        return not el.get_text().replace("\u00a0", "").strip() and not el.find("img")
+
+    def regroup(container):
+        runs, cur, line = [], [], []
+
+        def end_line():
+            if line:
+                cur.append(list(line))
+                line.clear()
+
+        def end_run():
+            end_line()
+            if cur:
+                runs.append(list(cur))
+                cur.clear()
+
+        for c in list(container.contents):
+            if isinstance(c, NavigableString) or not is_block(c):
+                line.append(c)
+            elif is_line_div(c):
+                end_line()
+                if is_blank(c):
+                    end_run()
+                    c.decompose()
+                else:
+                    cur.append([c])
+            else:
+                end_run()
+                if c.name in ("div", "blockquote"):
+                    regroup(c)
+                runs.append(c)
+        end_run()
+
+        for r in runs:
+            if not isinstance(r, list):
+                continue
+            p = soup.new_tag("p")
+            first = r[0][0]
+            first.insert_before(p)
+            for i, line_nodes in enumerate(r):
+                if i:
+                    p.append(soup.new_tag("br"))
+                for n in line_nodes:
+                    n = n.extract()
+                    if getattr(n, "name", None) == "div":
+                        for k in list(n.contents):
+                            p.append(k.extract())
+                        n.decompose()
+                    else:
+                        p.append(n)
+
+    for ws in soup.find_all(string=lambda t: not t.strip()):
+        if ws.parent.name != "pre" and not ws.parent.find_parent("pre"):
+            ws.extract()
+    regroup(soup)
+    return str(soup)
+
+def convert_html_to_md(html):
+    p = subprocess.run([PANDOC_BIN, "-f", "html", "-t", "gfm+hard_line_breaks-raw_html", "--wrap=none"],
+                       input=degmailify(html), capture_output=True, text=True)
+    if p.returncode != 0:
+        log_msg(f"Pandoc error: {p.stderr}")
+        sys.exit(1)
+    # Gmail indents with &nbsp;; in a .md file that should just be spaces.
+    return p.stdout.replace("\u00a0", " ")
+
+def set_clipboard_text(text):
+    if shutil.which("xclip"):
+        p = subprocess.Popen(["xclip", "-selection", "clipboard"], stdin=subprocess.PIPE)
+        p.communicate(input=text.encode("utf-8"))
+    elif shutil.which("wl-copy"):
+        subprocess.run(["wl-copy"], input=text, text=True)
+
 def set_clipboard_html(html_str):
     if shutil.which("xclip"):
         p = subprocess.Popen(["xclip", "-selection", "clipboard", "-t", "text/html"], stdin=subprocess.PIPE)
@@ -184,15 +319,26 @@ def set_clipboard_html(html_str):
         subprocess.run(["wl-copy", "-t", "text/html"], input=html_str, text=True)
 
 def main():
-    md_text = get_markdown_input()
-    if not md_text or not md_text.strip():
+    args = sys.argv[1:]
+    force = None
+    for flag, kind in (("--to-md", "html"), ("--to-html", "md")):
+        if flag in args:
+            args.remove(flag)
+            force = kind
+
+    text, kind = get_input(args[0] if args else None)
+    if not text or not text.strip():
         log_msg("Notice: Clipboard or input was empty. Nothing converted.")
         return
-        
-    raw_html = convert_md_to_html(md_text)
-    styled_html = gmailify(inject_compact_thin_border_styles(raw_html))
-    set_clipboard_html(styled_html)
-    log_msg("✓ Converted Markdown table to compact Rich HTML on clipboard!")
+
+    kind = force or kind or ("html" if looks_like_html(text) else "md")
+    if kind == "html":
+        set_clipboard_text(convert_html_to_md(text))
+        log_msg("✓ Converted Rich HTML to Markdown on clipboard!")
+    else:
+        raw_html = convert_md_to_html(text)
+        set_clipboard_html(gmailify(inject_compact_thin_border_styles(raw_html)))
+        log_msg("✓ Converted Markdown to compact Rich HTML on clipboard!")
 
 if __name__ == "__main__":
     main()
