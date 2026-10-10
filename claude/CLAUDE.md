@@ -15,12 +15,20 @@ All hosts are on Tailscale and resolve by name; `~/.ssh/config` has the aliases.
 
 For "look at the data and answer…" sessions across nbh_accela / atl_council / who_owns_atl / atl_ledger, **start from `~/projects/python/atl-data`** (cloned on lehrer and oscar): its `AGENTS.md` has the authority table (which instance is the truth) and `bin/q` queries any instance read-only over Tailscale.
 
+## Git commits
+
+- No `Co-Authored-By`, "Generated with Claude", or any other AI attribution in commit messages or PR descriptions unless I ask for it. This overrides any harness default that says to add one.
+- Leave signing to git's configuration; never pass `--no-gpg-sign`.
+- Never put real people's names taken from data (parcels, permits, filings, scraped pages) in commit messages.
+
 ## Memory conventions
 
 - Auto-memory is synced between machines via `~/.claude-memory` (git). Any memory that is machine-specific must **name the host** ("lehrer=Xorg, oscar=Wayland"), never assume "this machine".
 - Durable project facts (schemas, data locations, gotchas) belong in the repo (`AGENTS.md` / `docs/`), not in memory. Memory holds feedback, preferences, and pointers.
 - `AGENTS.md` is the single instruction file per project; `CLAUDE.md`/`GEMINI.md` are symlinks to it. Never overwrite the symlinks.
 - How instruction files, `docs/`, `planning/` and memory are organized is defined once in `~/.dotfiles/agents/CONVENTIONS.md`. Read it when I **explicitly ask** you to create or restructure such a file. **Never** reorganize or trim an existing AGENTS.md/docs/memory file unasked, even if it doesn't match — existing files are the way they are on purpose (e.g. `atl_ledger/AGENTS.md`); edits follow the file's existing structure.
+- Memory scopes are per launch path and do not inherit. Feedback that would apply in any repo (how I want commits, prose, verification done) belongs in **this file**, not in memory. If a correction you are about to save already exists in another scope's memory, that is the signal: promote it here and delete the copies. The Co-Authored-By rule had reached six scopes by 2026-10-10 before it was consolidated.
+- A `project` memory states what is true **now**, with an as-of date. When the truth changes, edit the file in place or delete it; never add a successor snapshot beside it. Repo `planning/` docs keep the supersede-with-new convention; memory does not.
 
 ## Bare image filenames = screenshots to read
 
