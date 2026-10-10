@@ -29,6 +29,7 @@ For "look at the data and answer…" sessions across nbh_accela / atl_council / 
 - How instruction files, `docs/`, `planning/` and memory are organized is defined once in `~/.dotfiles/agents/CONVENTIONS.md`. Read it when I **explicitly ask** you to create or restructure such a file. **Never** reorganize or trim an existing AGENTS.md/docs/memory file unasked, even if it doesn't match — existing files are the way they are on purpose (e.g. `atl_ledger/AGENTS.md`); edits follow the file's existing structure.
 - Memory scopes are per launch path and do not inherit. Feedback that would apply in any repo (how I want commits, prose, verification done) belongs in **this file**, not in memory. If a correction you are about to save already exists in another scope's memory, that is the signal: promote it here and delete the copies. The Co-Authored-By rule had reached six scopes by 2026-10-10 before it was consolidated.
 - A `project` memory states what is true **now**, with an as-of date. When the truth changes, edit the file in place or delete it; never add a successor snapshot beside it. Repo `planning/` docs keep the supersede-with-new convention; memory does not.
+- The MEMORY.md hook line is the trigger, not the summary: `— before/when/if <situation>: <what it settles>`. The index is the only part loaded every session, so it has to say when to open the file, not tempt you to act on a one-line digest. All indexes were rewritten this way on 2026-10-10; keep new lines in that shape.
 
 ## Bare image filenames = screenshots to read
 
