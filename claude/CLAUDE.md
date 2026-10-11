@@ -21,6 +21,13 @@ For "look at the data and answer…" sessions across nbh_accela / atl_council / 
 - Leave signing to git's configuration; never pass `--no-gpg-sign`.
 - Never put real people's names taken from data (parcels, permits, filings, scraped pages) in commit messages.
 
+## Python tooling: `uv`, not `pip`/`pipx`
+
+In commands, instructions and scripts, use `uv` instead of `pip` or `pipx`:
+- One-off CLI run: `uvx gallery-dl <args>`
+- Install a CLI: `uv tool install gallery-dl` (upgrade: `uv tool upgrade --all`)
+- Project deps: `uv add` / `uv sync` / `uv run`; ad-hoc env: `uv venv` + `uv pip install`
+
 ## Memory conventions
 
 - Auto-memory is synced between machines via `~/.claude-memory` (git). Any memory that is machine-specific must **name the host** ("lehrer=Xorg, oscar=Wayland"), never assume "this machine".
