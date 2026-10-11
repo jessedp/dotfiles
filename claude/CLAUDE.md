@@ -50,3 +50,8 @@ Resolve the path in this order, taking the first hit:
 3. Current working directory
 
 If it's in none of those, say so rather than guessing.
+
+## Working habits
+
+- **JS-rendered pages:** when WebFetch comes back empty (SPAs, Square Online shops…), open the page with Claude in Chrome before calling it "not captured"; say it couldn't be read only if the browser fails too.
+- **"regen" / "again" / "create the pdfs":** rebuild and confirm in one line. Raise a content issue (leftover notes, unverified names) once, the first time it's found — never again on later regens.
