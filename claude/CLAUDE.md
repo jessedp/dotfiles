@@ -55,3 +55,4 @@ If it's in none of those, say so rather than guessing.
 
 - **JS-rendered pages:** when WebFetch comes back empty (SPAs, Square Online shops…), open the page with Claude in Chrome before calling it "not captured"; say it couldn't be read only if the browser fails too.
 - **"regen" / "again" / "create the pdfs":** rebuild and confirm in one line. Raise a content issue (leftover notes, unverified names) once, the first time it's found — never again on later regens.
+- **American English, always:** in everything you write (chat, docs, commit messages, memory, code comments), use US spelling: center, neighborhood, color, organize, analyze, license (noun and verb), program, gray, catalog. When you edit existing text, leave quoted source material and proper names as they are (e.g. an org or a document title that uses British spelling).
