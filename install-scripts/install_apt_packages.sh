@@ -16,7 +16,7 @@ echo "INFO: Installing common CLI packages..."
 sudo apt-get install -y build-essential git sqlite3 curl vim tmux zsh python3-pip tree nfs-common htop
 
 echo "INFO: Installing my CLI packages..."
-sudo apt-get install -y jq rclone mc qrencode shellcheck traceroute mtr iftop syncthing
+sudo apt-get install -y jq rclone mc qrencode shellcheck traceroute mtr iftop syncthing git-filter-repo
 
 # Check for "desktop" profile before installing GUI packages
 if [ "$DOTFILES_PROFILE" == "desktop" ]; then

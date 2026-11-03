@@ -5,9 +5,6 @@
 
 - clean: ["~"]
 
-
-- clean: ["~"]
-
 - link:
     ~/bin:
         path: bin/
@@ -73,4 +70,7 @@
       quiet: false
     - command: "./install-scripts/install_lazygit.sh"
       description: Installing Lazygit
+      quiet: false
+    - command: "./install-scripts/install_cli_tools.sh"
+      description: Installing CLI tools (jless, jtd-infer)
       quiet: false
