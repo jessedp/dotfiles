@@ -1,5 +1,4 @@
 {
-  "model": "claude-fable-5[1m]",
   "hooks": {
     "UserPromptSubmit": [
       {
@@ -45,12 +44,6 @@
         "source": "github",
         "repo": "sshh12/claude-plugins"
       }
-    }
-  },
-  "effortLevel": "xhigh",
-  "modelSettings": {
-    "claude-fable-5": {
-      "effortLevel": "high"
     }
   },
   "tui": "fullscreen",
