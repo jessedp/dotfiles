@@ -10,4 +10,7 @@ git pull
 echo "📦 Synchronizing submodules..."
 git submodule update --init --recursive
 
+echo "🤖 Merging shared Claude Code settings..."
+./install-scripts/merge_claude_settings.sh
+
 echo "✨ Update complete!"

@@ -26,7 +26,6 @@
       path: rclone-wrapper/
       create: true
     ~/.claude/CLAUDE.md: claude/CLAUDE.md
-    ~/.claude/settings.json: claude/settings.json
     ~/.claude/statusline.sh: claude/statusline.sh
     ~/.claude/hooks:
         path: claude/hooks/
@@ -70,6 +69,9 @@
       quiet: false
     - command: "./install-scripts/install_lazygit.sh"
       description: Installing Lazygit
+      quiet: false
+    - command: "./install-scripts/merge_claude_settings.sh"
+      description: Merging shared Claude Code settings
       quiet: false
     - command: "./install-scripts/install_cli_tools.sh"
       description: Installing CLI tools (jless, jtd-infer)

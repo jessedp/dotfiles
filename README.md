@@ -28,3 +28,10 @@ cd ~/.dotfiles && git pull --ff-only &&  ./install && source ~/.bashrc && git_pr
 ```
 *(On a desktop, use `./install desktop` in the command above.)*
 
+
+### Claude Code settings
+`~/.claude/settings.json` is a regular per-host file, not a symlink, so `/model`, `/config` and host-only
+hooks never dirty this repo. Shared keys live in `claude/settings.base.json`; `./update` and `./install` run
+`install-scripts/merge_claude_settings.sh`, which merges them in (base keys win, host-only keys and hooks stay).
+To change a setting everywhere, edit `settings.base.json`, push, then `./update` on each host. Removing a key
+from the base does not remove it from hosts.
