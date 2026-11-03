@@ -53,6 +53,11 @@ If it's in none of those, say so rather than guessing.
 
 ## Working habits
 
+- **Save findings as you go.** When research turns up something durable (a probe result, a contract number,
+  a date, a cost table), write it to the right place in the same turn: the atl-data authority table for where
+  data lives, an `~/projects/python/atl-reports/<topic>/` note for research, `/mnt/Public/backups/web-archive/`
+  for pulled sources. Don't leave it in chat or the scratchpad waiting to be asked; the scratchpad dies with
+  the session.
 - **Gmail: use the Workspace API, not Claude in Chrome** (lehrer only). For a pasted Gmail link or any mail
   search: `uv run ~/.config/google-workspace/gmail_thread.py '<url | thread id>'` (`--search '<gmail query>'`,
   `--get <msg id> "<attachment>" <dir>`). It decodes the URL token to the API thread id and gives full bodies,
@@ -60,4 +65,5 @@ If it's in none of those, say so rather than guessing.
   draft, send, label or archive. I send from Gmail myself.
 - **JS-rendered pages:** when WebFetch comes back empty (SPAs, Square Online shops…), open the page with Claude in Chrome before calling it "not captured"; say it couldn't be read only if the browser fails too.
 - **"regen" / "again" / "create the pdfs":** rebuild and confirm in one line. Raise a content issue (leftover notes, unverified names) once, the first time it's found — never again on later regens.
+- **LLM backends for personal automation: subscription CLIs first.** `claude -p ... --output-format json --json-schema` (Max subscription, `claude setup-token` for headless) and `agy --print` (Antigravity) are valid zero-API-cost backends; don't dismiss them in favor of paid API calls. Since 2026-11-02 the Max plan also funds **$100/month of API credits** on the org that owns daily-digest's `ANTHROPIC_API_KEY`, so direct API calls are fine too (use them, they reset monthly). A `claude` child process that inherits `ANTHROPIC_API_KEY` bills the API instead of the subscription; daily-digest's scooter vision passes it only when no `CLAUDE_CODE_OAUTH_TOKEN` is set. (Learned 2026-10-29, scooter-report planning; credits added 2026-11-02.)
 - **American English, always:** in everything you write (chat, docs, commit messages, memory, code comments), use US spelling: center, neighborhood, color, organize, analyze, license (noun and verb), program, gray, catalog. When you edit existing text, leave quoted source material and proper names as they are (e.g. an org or a document title that uses British spelling).
