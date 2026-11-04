@@ -24,6 +24,7 @@ For "look at the data and answer…" sessions across nbh_accela / atl_council / 
 ## Python tooling: `uv`, not `pip`/`pipx`
 
 In commands, instructions and scripts, use `uv` instead of `pip` or `pipx`:
+
 - One-off CLI run: `uvx gallery-dl <args>`
 - Install a CLI: `uv tool install gallery-dl` (upgrade: `uv tool upgrade --all`)
 - Project deps: `uv add` / `uv sync` / `uv run`; ad-hoc env: `uv venv` + `uv pip install`
@@ -45,6 +46,7 @@ If I paste just an image filename with no other context (e.g. `2026-07-14_18-12.
 it — read it first, then respond to what's in it.
 
 Resolve the path in this order, taking the first hit:
+
 1. `~/Pictures/Screenshots/<name>`
 2. `~/Downloads/<name>`
 3. Current working directory
@@ -65,5 +67,5 @@ If it's in none of those, say so rather than guessing.
   draft, send, label or archive. I send from Gmail myself.
 - **JS-rendered pages:** when WebFetch comes back empty (SPAs, Square Online shops…), open the page with Claude in Chrome before calling it "not captured"; say it couldn't be read only if the browser fails too.
 - **"regen" / "again" / "create the pdfs":** rebuild and confirm in one line. Raise a content issue (leftover notes, unverified names) once, the first time it's found — never again on later regens.
-- **LLM backends for personal automation: subscription CLIs first.** `claude -p ... --output-format json --json-schema` (Max subscription, `claude setup-token` for headless) and `agy --print` (Antigravity) are valid zero-API-cost backends; don't dismiss them in favor of paid API calls. Since 2026-11-02 the Max plan also funds **$100/month of API credits** on the org that owns daily-digest's `ANTHROPIC_API_KEY`, so direct API calls are fine too (use them, they reset monthly). A `claude` child process that inherits `ANTHROPIC_API_KEY` bills the API instead of the subscription; daily-digest's scooter vision passes it only when no `CLAUDE_CODE_OAUTH_TOKEN` is set. (Learned 2026-10-29, scooter-report planning; credits added 2026-11-02.)
+- **LLM backends for personal automation: subscription CLIs first.** `claude -p ... --output-format json --json-schema` (Max subscription, `claude setup-token` for headless) and `agy --dangerously-skip-permissions --prompt ...` (Antigravity) are valid zero-API-cost backends; don't dismiss them in favor of paid API calls. Since 2026-11-02 the Max plan also funds **$100/month of API credits** on the org that owns daily-digest's `ANTHROPIC_API_KEY`, so direct API calls are fine too (use them, they reset monthly). A `claude` child process that inherits `ANTHROPIC_API_KEY` bills the API instead of the subscription; daily-digest's scooter vision passes it only when no `CLAUDE_CODE_OAUTH_TOKEN` is set. (Learned 2026-10-29, scooter-report planning; credits added 2026-11-02.)
 - **American English, always:** in everything you write (chat, docs, commit messages, memory, code comments), use US spelling: center, neighborhood, color, organize, analyze, license (noun and verb), program, gray, catalog. When you edit existing text, leave quoted source material and proper names as they are (e.g. an org or a document title that uses British spelling).
