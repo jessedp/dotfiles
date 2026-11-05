@@ -31,6 +31,12 @@
         path: claude/hooks/
         relink: true
         create: true
+    ~/.config/google-workspace/auth.py:
+        path: google-workspace/auth.py
+        create: true
+    ~/.config/google-workspace/gmail_thread.py:
+        path: google-workspace/gmail_thread.py
+        create: true
 
 - shell:
     - [git submodule update --init --recursive, Installing submodules]

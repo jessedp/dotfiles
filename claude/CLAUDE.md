@@ -60,7 +60,7 @@ If it's in none of those, say so rather than guessing.
   data lives, an `~/projects/python/atl-reports/<topic>/` note for research, `/mnt/Public/backups/web-archive/`
   for pulled sources. Don't leave it in chat or the scratchpad waiting to be asked; the scratchpad dies with
   the session.
-- **Gmail: use the Workspace API, not Claude in Chrome** (lehrer only). For a pasted Gmail link or any mail
+- **Gmail: use the Workspace API, not Claude in Chrome** (lehrer and oscar). For a pasted Gmail link or any mail
   search: `uv run ~/.config/google-workspace/gmail_thread.py '<url | thread id>'` (`--search '<gmail query>'`,
   `--get <msg id> "<attachment>" <dir>`). It decodes the URL token to the API thread id and gives full bodies,
   every message and real attachment files; Chrome clips long messages and collapses threads. Read only: never

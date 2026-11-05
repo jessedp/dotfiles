@@ -1,0 +1,2 @@
+# OAuth client + tokens stay in ~/.config/google-workspace only; this repo is public
+*.json
