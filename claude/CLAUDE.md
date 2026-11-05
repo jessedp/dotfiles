@@ -7,7 +7,7 @@ This file is shared across machines via `~/.dotfiles/claude/` (dotbot-linked int
 - **lehrer** — laptop, main workstation (Xorg). Dev copies of nbh_accela / atl_council.
 - **oscar** — desktop, big cores+RAM, Tailscale exit node (Wayland). Home of atl_ledger and who_owns_atl data.
 - **oddjob** — LXC on the `zazu` Proxmox host; "network brain" (Docker: daily-digest, homepage, uptime-kuma, home-assistant…). Inventory at `/opt/control-center`.
-- **woa-1**, **ls2/lastseen2** — internet-facing VPS running production sites. Reach in read-only unless explicitly told to deploy. No GPU anywhere.
+- **woa-2** (netcup; WoA + atl_council, shared PostGIS, `ssh woa-2` = user deploy), **ls2/lastseen2** (Hetzner; nbh_accela) — internet-facing VPS running production sites. Reach in read-only unless explicitly told to deploy. woa-1 (GT Host) retired 2026-11-05. No GPU anywhere.
 
 All hosts are on Tailscale and resolve by name; `~/.ssh/config` has the aliases. The home-lab operations repo (`jessedp/home-control-center`) is cloned at `/opt/control-center` on lehrer, oscar and oddjob: inventory is `inventory.md` + `inventory/<host>.md` there. **Start system/infra/network sessions from `/opt/control-center`** so they share one memory scope; pull before acting, push after editing.
 
