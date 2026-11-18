@@ -1,0 +1,56 @@
+#!/usr/bin/env -S uv run --quiet --script
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["python-xlib"]
+# ///
+"""Open URL(s) in Firefox, then give the Firefox window real keyboard focus.
+
+On GNOME/X11, a remote "open this URL" from another app (MarkText, via xdg-open)
+makes Firefox raise itself, but mutter's focus-stealing prevention leaves keyboard
+focus on the calling app: Ctrl+W then closes the MarkText doc. Sending
+_NET_ACTIVE_WINDOW with source=2 (pager) is honored unconditionally.
+X11 only; on Wayland it just runs firefox.
+"""
+import os, subprocess, sys, time
+
+subprocess.run(["firefox", *sys.argv[1:]])
+if os.environ.get("XDG_SESSION_TYPE") != "x11":
+    sys.exit(0)
+
+from Xlib import X, display
+from Xlib.protocol import event
+
+d = display.Display()
+root = d.screen().root
+A = lambda n: d.intern_atom(n)
+STACK, ACTIVE = A("_NET_CLIENT_LIST_STACKING"), A("_NET_ACTIVE_WINDOW")
+
+def is_ff(wid):
+    try:
+        cls = d.create_resource_object("window", wid).get_wm_class() or ()
+    except Exception:
+        return False
+    return any(c.lower() in ("firefox", "navigator", "firefox_firefox") for c in cls)
+
+def top_ff():
+    stack = root.get_full_property(STACK, X.AnyPropertyType)
+    for wid in reversed(stack.value if stack else []):
+        if is_ff(wid):
+            return wid, wid == stack.value[-1]
+    return None, False
+
+# Wait (up to ~3 s) for Firefox to raise itself, then activate its top window.
+wid = None
+for _ in range(30):
+    wid, on_top = top_ff()
+    if on_top:
+        break
+    time.sleep(0.1)
+if wid:
+    active = root.get_full_property(ACTIVE, X.AnyPropertyType)
+    if not (active and active.value and active.value[0] == wid):
+        win = d.create_resource_object("window", wid)
+        ev = event.ClientMessage(window=win, client_type=ACTIVE,
+                                 data=(32, [2, X.CurrentTime, 0, 0, 0]))
+        root.send_event(ev, event_mask=X.SubstructureRedirectMask | X.SubstructureNotifyMask)
+        d.flush()
