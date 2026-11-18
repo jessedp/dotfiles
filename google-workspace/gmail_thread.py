@@ -11,7 +11,10 @@ Read-only by intent: uses token-ro.json when present, else token.json. Never sen
 
 Gmail web URL token → API thread id: the token is a base-40 number over
 BCDFGHJKLMNPQRSTVWXZbcdfghjklmnpqrstvwxz; rewrite it in base 64 over the standard b64 alphabet,
-base64-decode → "f:<decimal>"; hex(decimal) is the API thread id. (Verified 2026-10-20 on 3 threads.)
+base64-decode → "thread-f:<decimal>"; hex(decimal) is the API thread id. (Verified 2026-10-20 on 3 threads.)
+"msg-f:<decimal>" is a message id (resolved to its thread). Threads you started decode to "thread-a:r<signed
+decimal>", a random client-side id with no API mapping (verified 2026-11-17): the script then lists best
+guesses (threads whose first message you sent, newest activity first) to pick from.
 """
 import argparse, base64, datetime, html, re, sys
 from pathlib import Path
@@ -37,7 +40,40 @@ def thread_id(arg):
         n, r = divmod(n, 64)
         s = B64[r] + s
     raw = base64.b64decode(s + "=" * (-len(s) % 4)).decode()
-    return format(int(raw.split(":")[-1]), "x")
+    kind, _, num = raw.rpartition(":")
+    if num.isdigit():  # thread-f:<dec> (received) or msg-f:<dec> (single message)
+        hid = format(int(num), "x")
+        if kind.startswith("msg"):
+            return gm.users().messages().get(userId="me", id=hid, format="minimal").execute()["threadId"]
+        return hid
+    # thread-a:r<signed dec> = a thread you started in Gmail web/app. The r-number is a random client-side id:
+    # checked 2026-11-17 against 17 (r, API id) pairs, it appears nowhere in the API data, raw MIME or the
+    # Message-ID bytes. Only Gmail's web DOM (data-legacy-thread-id) maps it. Best guess: threads whose first
+    # message you sent, most recent activity first.
+    print(f"Token decodes to {raw!r}: a thread you started; the API can't resolve that id.\n"
+          "Best guesses, threads you started, newest activity first (rerun with the id):", file=sys.stderr)
+    shown = 0
+    for t in gm.users().threads().list(userId="me", q="from:me newer_than:90d", maxResults=40).execute().get("threads", []):
+        th = gm.users().threads().get(userId="me", id=t["id"], format="metadata",
+                                      metadataHeaders=["Subject", "To", "Date"]).execute()
+        first = th["messages"][0]
+        if "SENT" not in first.get("labelIds", []):
+            continue
+        h = {x["name"]: x["value"] for x in first["payload"]["headers"]}
+        last = datetime.datetime.fromtimestamp(int(th["messages"][-1]["internalDate"]) / 1000).strftime("%m-%d %H:%M")
+        print(t["id"], f"{len(th['messages'])} msgs | last {last} | to {h.get('To', '')[:40]} | {h.get('Subject', '')}")
+        shown += 1
+        if shown == 12:
+            break
+    sys.exit(2)
+
+
+def list_threads(q, n=50):
+    for t in gm.users().threads().list(userId="me", q=q, maxResults=n).execute().get("threads", []):
+        th = gm.users().threads().get(userId="me", id=t["id"], format="metadata",
+                                      metadataHeaders=["Subject", "From", "Date"]).execute()
+        h = {x["name"]: x["value"] for x in th["messages"][-1]["payload"]["headers"]}
+        print(t["id"], f"{len(th['messages'])} msgs |", h.get("Date", "")[:22], "|", h.get("From", ""), "|", h.get("Subject", ""))
 
 
 def body(p):
@@ -87,11 +123,7 @@ if a.get:
     p.write_bytes(base64.urlsafe_b64decode(data))
     print("saved", p)
 elif a.search:
-    for t in gm.users().threads().list(userId="me", q=a.search, maxResults=50).execute().get("threads", []):
-        th = gm.users().threads().get(userId="me", id=t["id"], format="metadata",
-                                      metadataHeaders=["Subject", "From", "Date"]).execute()
-        h = {x["name"]: x["value"] for x in th["messages"][-1]["payload"]["headers"]}
-        print(t["id"], f"{len(th['messages'])} msgs |", h.get("Date", "")[:22], "|", h.get("From", ""), "|", h.get("Subject", ""))
+    list_threads(a.search)
 elif a.thread:
     th = gm.users().threads().get(userId="me", id=thread_id(a.thread), format="full").execute()
     for m in th["messages"]:
