@@ -31,6 +31,10 @@
         path: claude/hooks/
         relink: true
         create: true
+    ~/.agents/skills/wrap:
+        path: claude/skills/wrap/
+        relink: true
+        create: true
     ~/.config/google-workspace/auth.py:
         path: google-workspace/auth.py
         create: true
