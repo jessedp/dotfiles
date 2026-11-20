@@ -127,7 +127,7 @@ elif a.search:
 elif a.thread:
     th = gm.users().threads().get(userId="me", id=thread_id(a.thread), format="full").execute()
     for m in th["messages"]:
-        h = {x["name"]: x["value"] for x in m["payload"]["headers"]}
+        h = {x["name"].title(): x["value"] for x in m["payload"]["headers"]}  # Outlook sends "CC", Gmail "Cc"
         dt = datetime.datetime.fromtimestamp(int(m["internalDate"]) / 1000).strftime("%Y-%m-%d %H:%M")
         at = atts(m["payload"], [])
         print(f"\n{'=' * 70}\n{dt} | {h.get('From', '')}\nTo: {h.get('To', '')}  Cc: {h.get('Cc', '')}\n"
