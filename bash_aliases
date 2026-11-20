@@ -29,12 +29,14 @@ alias ffpm='firefox -ProfileManager'
 # herdr spawns its server into the launching terminal's cgroup; systemd-oomd killed
 # that tab (and every agent in it) on 2026-08-18/25. Launch-style calls run inside a
 # transient scope oomd will not select; other subcommands pass straight through.
+# OOMPolicy=continue (2026-11-20): a kernel OOM kill of one child (pandoc on an RTF)
+# otherwise fails the whole scope and systemd stops every pane with it.
 herdr() {
   local bin; bin=$(type -P herdr) || bin="$HOME/.local/bin/herdr"
   case "${1-}" in
     ''|--session|--remote|--handoff|--remote-keybindings|session)
       if systemctl --user show-environment >/dev/null 2>&1; then
-        systemd-run --user --scope -q -p ManagedOOMPreference=omit \
+        systemd-run --user --scope -q -p ManagedOOMPreference=omit -p OOMPolicy=continue \
           --description="herdr (oomd-exempt)" "$bin" "$@"
         return
       fi ;;
